@@ -27,6 +27,17 @@ function App() {
     setTodos([...todos].filter(todo => todo.id !== id));
   }
 
+  function changeTodo(id){
+    const updatedTodos = todos.map(todo => {
+      if (todo.id === id) {
+        todo.isComplete = !todo.isComplete;
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  }
   const [todos, setTodos] = useState([
     {
       id: 1,
@@ -65,9 +76,10 @@ function App() {
               <div className="todo-item">
                 <input
                   type="checkbox"
+                  onChange={()=>changeTodo(todo.id)}
                   checked={todo.isComplete ? true : false}
                 />
-                <span className="todo-item-label">{todo.title}</span>
+                <span className={`todo-item-label ${todo.isComplete ? 'line-through' : ''}`}>{todo.title}</span>
               </div>
               <button className="x-button" onClick={()=>deleteTodo(todo.id)}>
                 <svg
