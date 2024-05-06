@@ -2,6 +2,31 @@ import "./App.css";
 import { useState } from "react";
 
 function App() {
+  const [todoInput, setTodoInput] = useState('');
+  const [todoInputId, setTodoInputId] = useState(4);
+
+  function handleInput(event) {
+    setTodoInput(event.target.value)
+  }
+
+  function addTodo() {
+    if (todoInput.trim() === '') {
+      return;
+    }
+
+    setTodos([...todos, {
+      id:todoInputId,
+      title:todoInput,
+      isComplete:false,
+    }]);
+
+    setTodoInputId(prevTodoInputId => prevTodoInputId + 1);
+  }
+
+  function deleteTodo(id){
+    setTodos([...todos].filter(todo => todo.id !== id));
+  }
+
   const [todos, setTodos] = useState([
     {
       id: 1,
@@ -24,9 +49,11 @@ function App() {
     <div className="todo-app-container">
       <div className="todo-app">
         <h2>Todo App</h2>
-        <form action="#">
+        <form action="#" onSubmit={addTodo}>
           <input
             type="text"
+            value={todoInput}
+            onChange={handleInput}
             className="todo-input"
             placeholder="What do you need to do?"
           />
@@ -34,7 +61,7 @@ function App() {
 
         <ul className="todo-list">
           {todos.map((todo, index) => (
-            <li className="todo-item-container">
+            <li key={todo.id} className="todo-item-container">
               <div className="todo-item">
                 <input
                   type="checkbox"
@@ -42,7 +69,7 @@ function App() {
                 />
                 <span className="todo-item-label">{todo.title}</span>
               </div>
-              <button className="x-button">
+              <button className="x-button" onClick={()=>deleteTodo(todo.id)}>
                 <svg
                   className="x-button-icon"
                   fill="none"
