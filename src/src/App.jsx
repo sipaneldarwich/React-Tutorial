@@ -2,33 +2,37 @@ import "./App.css";
 import { useState } from "react";
 
 function App() {
-  const [todoInput, setTodoInput] = useState('');
+  const [todoInput, setTodoInput] = useState("");
   const [todoInputId, setTodoInputId] = useState(4);
 
   function handleInput(event) {
-    setTodoInput(event.target.value)
+    setTodoInput(event.target.value);
   }
 
   function addTodo() {
-    if (todoInput.trim() === '') {
+    if (todoInput.trim() === "") {
       return;
     }
 
-    setTodos([...todos, {
-      id:todoInputId,
-      title:todoInput,
-      isComplete:false,
-    }]);
+    setTodos([
+      ...todos,
+      {
+        id: todoInputId,
+        title: todoInput,
+        isComplete: false,
+        isEditing: false,
+      },
+    ]);
 
-    setTodoInputId(prevTodoInputId => prevTodoInputId + 1);
+    setTodoInputId((prevTodoInputId) => prevTodoInputId + 1);
   }
 
-  function deleteTodo(id){
-    setTodos([...todos].filter(todo => todo.id !== id));
+  function deleteTodo(id) {
+    setTodos([...todos].filter((todo) => todo.id !== id));
   }
 
-  function changeTodo(id){
-    const updatedTodos = todos.map(todo => {
+  function completeTodo(id) {
+    const updatedTodos = todos.map((todo) => {
       if (todo.id === id) {
         todo.isComplete = !todo.isComplete;
       }
@@ -38,21 +42,69 @@ function App() {
 
     setTodos(updatedTodos);
   }
+
+  function markAsEditing(id) {
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.isEditing = true;
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  }
+
+  function updateTodo(event, id) {
+    const title = event.target.value;
+
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.isEditing = false;
+
+        if (title.trim === "") {
+          return todo;
+        }
+
+        todo.title = title;
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  }
+
+  function cancelEdit(id) {
+    const updatedTodos = todos.map((todo) => {
+      if (todo.id === id) {
+        todo.isEditing = false;
+      }
+
+      return todo;
+    });
+
+    setTodos(updatedTodos);
+  }
+
   const [todos, setTodos] = useState([
     {
       id: 1,
       title: "Finish React Series",
       isComplete: false,
+      isEditing: false,
     },
     {
       id: 2,
       title: "Go Grocery",
       isComplete: true,
+      isEditing: false,
     },
     {
       id: 3,
       title: "Take over world",
       isComplete: true,
+      isEditing: false,
     },
   ]);
 
@@ -76,12 +128,36 @@ function App() {
               <div className="todo-item">
                 <input
                   type="checkbox"
-                  onChange={()=>changeTodo(todo.id)}
+                  onChange={() => completeTodo(todo.id)}
                   checked={todo.isComplete ? true : false}
                 />
-                <span className={`todo-item-label ${todo.isComplete ? 'line-through' : ''}`}>{todo.title}</span>
+                {!todo.isEditing ? (
+                  <span
+                    className={`todo-item-label ${
+                      todo.isComplete ? "line-through" : ""
+                    }`}
+                    onDoubleClick={() => markAsEditing(todo.id)}
+                  >
+                    {todo.title}
+                  </span>
+                ) : (
+                  <input
+                    type="text"
+                    onBlur={(event) => updateTodo(event, todo.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        updateTodo(event, todo.id);
+                      } else if (event.key === "Escape") {
+                        cancelEdit(todo.id);
+                      }
+                    }}
+                    className="todo-item-input"
+                    defaultValue={todo.title}
+                    autoFocus
+                  />
+                )}
               </div>
-              <button className="x-button" onClick={()=>deleteTodo(todo.id)}>
+              <button className="x-button" onClick={() => deleteTodo(todo.id)}>
                 <svg
                   className="x-button-icon"
                   fill="none"
